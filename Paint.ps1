@@ -67,5 +67,33 @@ $aboutMenu.Text = "About"
 $aboutMenu.Add_Click({ShowAbout})
 [void]$helpMenu.DropDownItems.Add($aboutMenu)
 
+# Button functions
+function SaveFile {
+
+}
+
+function UndoEdit {
+
+}
+
+
+function RedoEdit {
+
+}
+
+function ShowAbout {
+    [void] [System.Windows.MessageBox]::Show("
+
+    Ctrl+S:                   Save
+
+    Ctrl+Z:                   Undo
+
+    Ctrl+Shift+Z:         Redo
+
+    Ctrl+L:                    exit
+
+    ", "Help")
+}
+
 #Show window
 $formWindow.ShowDialog()
