@@ -1,15 +1,12 @@
 ﻿Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-
-
-
 # Main GUI window
 $formWindow = New-Object System.Windows.Forms.Form
-
 $formWindow.Text = "Paint!"
-$formWindow.Width = 1200
-$formWindow.Height = 800
+$formWindow.Width = 1100
+$formWindow.Height = 750
+$formWindow.BackColor = [System.Drawing.Color]::FromArgb(155,155,155)
 
 # Menu objects
 $mainMenu = New-Object System.Windows.Forms.MenuStrip
@@ -31,12 +28,29 @@ $aboutToolStrip = New-Object System.Windows.Forms.ToolStripButton
 $undoToolStrip = New-Object System.Windows.Forms.ToolStripButton
 $redoToolStrip = New-Object System.Windows.Forms.ToolStripButton
 
+$colorSidebar = New-Object System.Windows.Forms.Panel
+
+$canvasMargin = 10
+$canvasBox = New-Object System.Windows.Forms.PictureBox
+$canvasBox.Size = New-Object System.Drawing.Size(900, 600)
+
+$bitmap = New-Object System.Drawing.Bitmap($canvasWidth, $canvasHeight)
+$g = [System.Drawing.Graphics]::FromImage($bitmap)
+
+
+
 # Menu bar buttons
+$colorSidebar.Dock = [System.Windows.Forms.DockStyle]::Left
+$colorSidebar.Width = 100
+$colorSidebar.BackColor = [System.Drawing.Color]::FromArgb(200,200,200)
+$formWindow.Controls.Add($colorSidebar)
+
+$canvasBox.Image = $canvasBitmap
+$canvasBox.BackColor = [System.Drawing.Color]::FromArgb(255,255,255)
+
 $formWindow.MainMenuStrip = $mainMenu
 $formWindow.Controls.Add($mainMenu)
-[void]$formWindow.Controls.Add($mainToolStrip)
 
-[void]$formWindow.Controls.Add($mainMenu)
 $fileMenu.Text = "File"
 [void]$mainMenu.Items.Add($fileMenu)
 
@@ -48,7 +62,6 @@ $exitMenu.Text = "Exit"
 $exitMenu.Add_Click({$formWindow.Close()})
 [void]$fileMenu.DropDownItems.Add($exitMenu)
 
-[void]$formWindow.Controls.Add($editMenu)
 $editMenu.Text = "Edit"
 [void]$mainMenu.Items.Add($editMenu)
 
@@ -67,7 +80,30 @@ $aboutMenu.Text = "About"
 $aboutMenu.Add_Click({ShowAbout})
 [void]$helpMenu.DropDownItems.Add($aboutMenu)
 
-# Button functions
+# Functions
+function CenterCanvas {
+
+    $x = [Math]::Max(($colorSidebar.Width + ($formWindow.ClientSize.Width - $colorSidebar.Width - $canvasBox.Height) /2), $colorSidebar.Width + $canvasMargin) # This is terrible code, calculate x from avalible space - margin*2 - sidebar 
+    $y = [Math]::Max((($formwindow.ClientSize.Height - $canvasBox.Height) /2), $canvasMargin) # Even worse code, height - box height - margin
+    $canvasBox.Location = New-Object System.Drawing.Point($x,$y)
+}
+
+function FillGrid {
+    $gridSize = 50
+
+    for ($x = 0; $x -lt $canvasWidth; $x += $gridSize) {
+        for ($y = 0; $y -lt $canvasHeight; $y += $gridSize) {
+            $color = [System.Drawing.Color]::FromArgb($rand.Next(0,256), $rand.Next(0,256), $rand.Next(0,256)) # MAKE GRID LATER
+            $brush = New-Object System.Drawing.SolidBrush($color)
+            $g.FillRectangle($brush, $x, $y, $gridSize, $gridSize)
+            $brush.Dispose()
+        }
+    }
+
+    $canvasBox.Image = $bitmap
+
+}
+
 function SaveFile {
 
 }
@@ -95,5 +131,16 @@ function ShowAbout {
     ", "Help")
 }
 
+
+
+
 #Show window
+$formWindow.Add_Resize({Center-Canvas})
+$formWindow.Controls.Add($canvasBox)
+Center-Canvas
+FillGrid
+$formWindow.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$formWindow.MaximizeBox = $false
+$formWindow.MinimizeBox = $false
+$formWindow.TopMost = $true
 $formWindow.ShowDialog()
