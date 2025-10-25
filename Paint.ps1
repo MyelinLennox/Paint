@@ -40,7 +40,6 @@ $canvasBox.Size = New-Object System.Drawing.Size($canvasWidth, $canvasHeight)
 $bitmap = New-Object System.Drawing.Bitmap($canvasWidth, $canvasHeight)
 $g = [System.Drawing.Graphics]::FromImage($bitmap)
 
-
 # Menu bar buttons
 $colorSidebar.Dock = [System.Windows.Forms.DockStyle]::Left
 $colorSidebar.Width = 100
@@ -86,22 +85,19 @@ $aboutMenu.Add_Click({ShowAbout})
 function CenterCanvas {
     $x = [Math]::Max(($colorSidebar.Width + ($formWindow.ClientSize.Width - $colorSidebar.Width - $canvasBox.Height) /2), $colorSidebar.Width + $canvasMargin) # This is terrible code, calculate x from avalible space - margin*2 - sidebar 
     $y = [Math]::Max((($formwindow.ClientSize.Height - $canvasBox.Height) /2), $canvasMargin) # Even worse code, height - box height - margin
-    $canvasBox.Location = New-Object System.Drawing.Point($x,$y)
+    $canvasBox.Location = New-Object System.Drawing.Point($x, $y)
 }
 
 function FillGrid {
-    $gridSize = 50
+    $gridSize = 40
 
     for ($x = 0; $x -lt $canvasWidth; $x += $gridSize) {
         for ($y = 0; $y -lt $canvasHeight; $y += $gridSize) {
-            if (($x % 1) -bxor ($y % 1)) {
-                $color = 0
-                Write-Output("tr")
+            if ((($x / $gridSize) % 2) -bxor (($y / $gridSize) % 2)) {
+                $color = 205
             } else {
-                Write-Output("fa")
                 $color = 255
             }
-
             $color = [System.Drawing.Color]::FromArgb($color, $color, $color) # MAKE GRID LATER
             $brush = New-Object System.Drawing.SolidBrush($color)
             $g.FillRectangle($brush, $x, $y, $gridSize, $gridSize)
@@ -139,8 +135,6 @@ function ShowAbout {
 
     ", "Help")
 }
-
-
 
 #Init funcs
 CenterCanvas
